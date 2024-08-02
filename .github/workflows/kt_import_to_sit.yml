@@ -1,4 +1,4 @@
-name: kt_pipeline_to_sit.yml
+name: kt_import_to_sit.yml
 # prepare for releasing to sit:
 
 on:
