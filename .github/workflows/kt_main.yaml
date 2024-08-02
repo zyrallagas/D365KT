@@ -1,0 +1,73 @@
+# Each job in a workflow can run for up to 6 hours of execution time. If a job reaches this limit, the job is terminated and fails to complete.
+# If the job has been terminated, please see solution history to check if export/import is still in progress.
+# Please see https://docs.github.com/en/actions/learn-github-actions/usage-limits-billing-and-administration#usage-limits for reference.
+
+name: kt_main.yaml
+
+run-name: Deploy ${{ inputs.solution_name }} - Triggered by @${{ github.actor }} 
+
+on:
+
+  workflow_dispatch:
+    inputs:
+      solution_name: 
+        description: 'Solution'
+        required: true
+        default: CMX10WebResources
+        type: choice
+        options:
+        - CMX_Dependency
+        - CMX_ConnectionReference_EnvironmentVariables
+        - CMX00EnvironmentVariables
+        - CMX10WebResources
+        - CMX20Customizing
+        - CMX21DDR
+        - CMX22Security
+        - CMX30Plugin
+        - CMX40Workflows
+        - CMX50Flows
+        - CMX60Templates
+        - CMX70Apps
+
+jobs:
+  export-from-dev:
+    uses: Energy-Queensland-Limited/CMX-D365/.github/workflows/kt_export_from_dev.yml@main
+    with:      
+      solution_name: ${{ inputs.solution_name }}
+      branch_name: solution
+      solution_exported_folder: out/exported/
+      solution_folder: out/solutions/
+      solution_target_folder: solutions/
+    secrets: 
+      dev_url: ${{ secrets.dev_url }}
+      dev_client_id: ${{ secrets.dev_client_id }}
+      dev_tenant_id: ${{ secrets.dev_tenant_id }}  
+      dev_secrets_id: ${{ secrets.dev_secrets_id }}
+          
+  release-to-build-env:
+    needs: [ export-from-dev ]
+    uses: Energy-Queensland-Limited/CMX-D365/.github/workflows/kt_import_to_build.yml@main
+    with:
+      solution_name: ${{ inputs.solution_name }}
+      branch_name: solution
+      solution_shipping_folder: out/ship/
+      solution_outbound_folder: out/solutions/
+      solution_source_folder: solutions/
+      solution_release_folder: out/release
+    secrets:
+      build_url: ${{ secrets.build_url }}
+      build_client_id: ${{ secrets.build_client_id }}
+      build_secrets_id: ${{ secrets.build_secrets_id }}
+      build_tenant_id: ${{ secrets.build_tenant_id }}
+         
+  release-to-sit-env:
+    needs: [ release-to-build-env ]
+    uses: Energy-Queensland-Limited/CMX-D365/.github/workflows/kt_import_to_sit.yml@main
+    with:
+      solution_name: ${{ inputs.solution_name }}
+      solution_release_folder: out/release
+    secrets:
+      sit_url: ${{ secrets.sit_url }}
+      sit_client_id: ${{ secrets.sit_client_id }}
+      sit_secrets_id: ${{ secrets.sit_secrets_id }}
+      sit_tenant_id: ${{ secrets.sit_tenant_id }}
