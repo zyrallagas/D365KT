@@ -31,7 +31,7 @@ on:
 
 jobs:
   export-from-dev:
-    uses: Energy-Queensland-Limited/CMX-D365/.github/workflows/kt_export_from_dev.yml@main
+    uses: zyrallagas/D365KT/.github/workflows/kt_export_from_dev.yml@main
     with:      
       solution_name: ${{ inputs.solution_name }}
       branch_name: solution
@@ -46,7 +46,7 @@ jobs:
           
   release-to-build-env:
     needs: [ export-from-dev ]
-    uses: Energy-Queensland-Limited/CMX-D365/.github/workflows/kt_import_to_build.yml@main
+    uses: zyrallagas/D365KT/.github/workflows/kt_import_to_build.yml@main
     with:
       solution_name: ${{ inputs.solution_name }}
       branch_name: solution
@@ -62,7 +62,7 @@ jobs:
          
   release-to-sit-env:
     needs: [ release-to-build-env ]
-    uses: Energy-Queensland-Limited/CMX-D365/.github/workflows/kt_import_to_sit.yml@main
+    uses: zyrallagas/D365KT/.github/workflows/kt_import_to_sit.yml@main
     with:
       solution_name: ${{ inputs.solution_name }}
       solution_release_folder: out/release
