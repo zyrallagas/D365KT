@@ -19,7 +19,7 @@ on:
         - CMX_Dependency
         - CMX_ConnectionReference_EnvironmentVariables
         - CMX00EnvironmentVariables
-        - CMX10WebResources
+        - CMX00WebResources
         - CMX20Customizing
         - CMX21DDR
         - CMX22Security
